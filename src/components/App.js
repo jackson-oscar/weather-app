@@ -5,7 +5,7 @@ import SearchBar from './SearchBar';
 import useWeather from '../hooks/useWeather';
 
 const App = () => {
-  const [weather, search] = useWeather('98101');
+  const [weather, search] = useWeather('Seattle');
 
   return (
     <div>
@@ -32,7 +32,7 @@ const App = () => {
           </div>
           ) : (
             <div>
-              Loading...
+              <div className="ui active centered inline massive loader"></div>
             </div>
           )
         }

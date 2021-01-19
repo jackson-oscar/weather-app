@@ -6,7 +6,7 @@ const SearchBar = ({onSearch}) => {
   const handleSearch = (e) => {
     e.preventDefault();
 
-    onSearch(parseInt(term));
+    onSearch(term);
   };
 
   return (
@@ -15,7 +15,7 @@ const SearchBar = ({onSearch}) => {
         <input
           className="prompt"
           type="text"
-          placeholder="US ZIP Code"
+          placeholder="Washington City or ZIP"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
@@ -29,9 +29,3 @@ const SearchBar = ({onSearch}) => {
 };
 
 export default SearchBar;
-
-/**
- * Icon Button to obtain GPS location
- * <i className="large map marker alternate link icon"></i>
- *
- */

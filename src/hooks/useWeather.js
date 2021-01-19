@@ -1,175 +1,97 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const useWeather = (defaultZipCode) => {
+const OW_API_KEY = process.env.REACT_APP_OPEN_WEATHER_API_KEY;
+const PS_API_KEY = process.env.REACT_APP_POSITION_STACK_API_KEY;
+const coordinatesURL = 'http://api.positionstack.com/v1/forward?';
+const forecastURL = 'http://api.openweathermap.org/data/2.5/onecall?';
+
+const useWeather = (defaultQuery) => {
   const [weather, setWeather] = useState([]);
 
-  const apiKey = process.env.REACT_APP_OPEN_WEATHER_API_KEY;
-  const dayURL = 'http://api.openweathermap.org/data/2.5/weather?';
-  const forecastURL = 'http://api.openweathermap.org/data/2.5/forecast?';
-
   useEffect(() => {
-    search(defaultZipCode);
-  }, [defaultZipCode]);
+    search(defaultQuery);
+  }, [defaultQuery]);
 
-  const search = async (zipCode) => {
-    if (!isValidZipCode(zipCode)) {
-      alert("Please enter valid 5-digit ZIP Code");
-      return;
-    }
-
-    try {
-      const dayWeatherGet = axios.get(dayURL, {
+  const search = async (query) => {
+    try { // try1
+      const response = await axios.get(coordinatesURL, {
         params: {
-          q: zipCode + ",us",
-          APPID: apiKey,
-          units: 'imperial'
+          access_key: PS_API_KEY,
+          query: `${query},wa`,
+          country: "us"
         }
       });
 
-      const forecastWeatherGet =  axios.get(forecastURL, {
-        params: {
-          q: zipCode + ",us",
-          APPID: apiKey,
-          units: 'imperial'
+      /**
+       * Displays error message when nothing is found
+       * Nothing found gives back empty array or empty array of arrays
+       * Random queries still give results
+       */
+      if (response.data.data.length > 0 || response.data.data[0].length > 0) {
+        try { // try2
+          const forecastWeatherGet = await axios.get(forecastURL, {
+            params: {
+              lat: response.data.data[0].latitude,
+              lon: response.data.data[0].longitude,
+              exclude: "minutely,hourly",
+              APPID: OW_API_KEY,
+              units: 'imperial'
+            }
+          });
+
+          const currentWeather = forecastWeatherGet.data.current;
+          const forecastWeather = forecastWeatherGet.data.daily;
+          const cityLabel = response.data.data[0].locality ? response.data.data[0].locality : response.data.data[0].label;
+          
+          setWeather([
+            {
+              city: cityLabel,
+              temp: Math.round(currentWeather.temp),
+              high: Math.round(forecastWeather[0].temp.max),
+              low: Math.round(forecastWeather[0].temp.min),
+              description: currentWeather.weather[0].description,
+              icon: currentWeather.weather[0].icon
+            },
+            
+            getFiveDayForecast(forecastWeather)
+          ]);
+        } catch (err) { // catch for try2
+          console.log(err);
         }
-      });
-
-      const [day, forecast] = await Promise.all([dayWeatherGet, forecastWeatherGet]);
-      setWeather([
-        {
-          city: day.data.name,
-          temp: Math.round(day.data.main.temp),
-          high: Math.round(day.data.main.temp_max),
-          low: Math.round(day.data.main.temp_min),
-          description: day.data.weather[0].description,
-          icon: day.data.weather[0].icon
-        },
-
-        forecastHighLow(forecast.data.list)
-      ]);
-    } catch (err) {
-      console.warn(err);
-      alert("Oops! Looks like there was an error retrieving that ZIP Code!");
-    }
+      } else {
+        alert("Oops! Looks like the ZIP Code entered was not found!");
+      }
+    } catch (err) { // catch for try1
+      console.log(err);
+      alert("Oops! Looks like the ZIP Code entered was not found!");
+    };
   };
 
   return [weather, search];
 };
 
-const forecastHighLow = (forecast) => {
-  let renderedForecast = [];
-  let recordedDate = '';
-  let day = {};
-  let weatherDescription = '';
-  let weatherIcon = '';
-
-  // Filter out same day data
-  const weekForecast = forecast.filter(getWeekForecast);
-  let forecastLength = weekForecast.length;
-
-  // Initialize high and low for first day in forecast
-  let tempDate = weekForecast[0].dt_txt,
-    tempLow = weekForecast[0].main.temp,
-    tempHigh = weekForecast[0].main.temp;
-
-  for (let i = 1; i < forecastLength - 1; i++) {
-    day = weekForecast[i];
-
-    // Check if day is the same as previous
-    if (isSameDay(day.dt_txt, tempDate)) {
-      recordedDate = day.dt;
-
-      if (day.main.temp > tempHigh) {
-        tempHigh = day.main.temp;
+/**
+ * Returns five day forecast 
+ */
+const getFiveDayForecast = (data) => {
+  const renderedData = [];
+  
+  // i = 1 skips current day
+  for(let i = 1; i <= 5; i++){
+    renderedData.push(
+      {
+        weekDay: getWeekDay(data[i].dt),
+        high: Math.round(data[i].temp.max),
+        low: Math.round(data[i].temp.min),
+        description: data[i].weather[0].description,
+        icon: data[i].weather[0].icon,
+        dt: data[i].dt
       }
-
-      if (day.main.temp < tempLow) {
-        tempLow = day.main.temp;
-      }
-
-      // Get icon and description at noon dt_txt == xxxx-xx-xx 12:00:00
-      // weatherIcon is changed to day time icon
-      if (isNoon(day.dt_txt)) {
-        weatherDescription = day.weather[0].description;
-        weatherIcon = day.weather[0].icon.substring(0, 2) + "d";
-      }
-    } else {
-      /* 
-      *  If different day then push previous day info to renderedForecast[]
-      *  Also pushes last day
-      */
-      renderedForecast.push({
-        weekDay: getWeekDay(recordedDate),
-        high: Math.round(tempHigh),
-        low: Math.round(tempLow),
-        description: weatherDescription,
-        icon: weatherIcon,
-        dt: recordedDate
-      });
-
-      tempDate = day.dt_txt;
-      tempHigh = day.main.temp;
-      tempLow = day.main.temp;
-    }
-
+    );
   };
 
-  /**
-     * API can give different number of days of data back
-     * Last Day needs to be pushed manually at different times
-     * Only when list is less than 5
-     */
-  if (renderedForecast.length < 5) {
-    renderedForecast.push({
-      weekDay: getWeekDay(recordedDate),
-      high: Math.round(tempHigh),
-      low: Math.round(tempLow),
-      description: weatherDescription,
-      icon: weatherIcon,
-      dt: recordedDate
-    });
-  }
-
-  return renderedForecast;
-};
-
-/* 
-*  Returns if day is the same
-*  Checks date only not time
-*/
-const isSameDay = (current, previous) => {
-  if (current.indexOf(previous.substring(0, 11)) !== -1) {
-    return true;
-  }
-  return false;
-};
-
-/**
- * Returns forecast without current day data 
- */
-const getWeekForecast = (day) => {
-  const today = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + "";
-  return !isSameDay(day.dt_txt, today);
-};
-
-/**
- * Returns true if the dates time is at noon
- */
-const isNoon = (date) => {
-  const noon = "12"
-
-  if (date.substring(11, 14).indexOf(noon) !== -1) {
-    return true
-  }
-  return false
-};
-
-/**
- * Returns if valid zipcode
- */
-const isValidZipCode = (zipCode) => {
-  return /(^\d{5}$)|(^\d{5}-\d{4}$)/.test(zipCode);
+  return renderedData;
 };
 
 /**
