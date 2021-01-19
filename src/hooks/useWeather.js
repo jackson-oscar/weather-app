@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OW_API_KEY = process.env.REACT_APP_OPEN_WEATHER_API_KEY;
-const MB_API_KEY = process.env.REACT_APP_MAPBOX_API_KEY;
+const MB_API_KEY = 'pk.eyJ1Ijoib2pkZXZlbG9wZXIiLCJhIjoiY2trM3NhM2dnMWUwczJ2cDVjeDhmbHFreSJ9.Wl7xYBoighmtAkoC_IOYyg';
 
 const useWeather = (defaultQuery) => {
   const [weather, setWeather] = useState([]);
