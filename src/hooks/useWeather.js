@@ -14,9 +14,8 @@ const useWeather = (defaultQuery) => {
 
   const search = async (query) => {
     try { // try1
-      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?`, {
+      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${MB_API_KEY}`, {
         params: {
-          access_token: MB_API_KEY,
           types: "postcode,place",
           worldview: "us",
           autocomplete: "false"
