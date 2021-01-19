@@ -15,7 +15,7 @@ const SearchBar = ({onSearch}) => {
         <input
           className="prompt"
           type="text"
-          placeholder="Washington City or ZIP"
+          placeholder="US location, zip..."
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
