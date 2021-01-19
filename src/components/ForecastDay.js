@@ -6,7 +6,7 @@ const ForecastDay = ({ data }) => {
       <div className="content">
         <div className="center aligned header">
           <p>{data.weekDay}</p>
-          <img className="ui tiny image" src={`http://openweathermap.org/img/wn/${data.icon}@2x.png`} />
+          <img className="ui tiny image" src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`} />
         </div>
       </div>
       <div className="extra content">
