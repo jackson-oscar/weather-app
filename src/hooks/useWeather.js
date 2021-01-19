@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OW_API_KEY = process.env.REACT_APP_OPEN_WEATHER_API_KEY;
+const OW_API_KEY = '3730a1d53cd51070d7ccbfebda82c7ba';
 const MB_API_KEY = 'pk.eyJ1Ijoib2pkZXZlbG9wZXIiLCJhIjoiY2trM3NhM2dnMWUwczJ2cDVjeDhmbHFreSJ9.Wl7xYBoighmtAkoC_IOYyg';
 
 const useWeather = (defaultQuery) => {
