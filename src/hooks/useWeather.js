@@ -6,7 +6,6 @@ const MB_API_KEY = process.env.REACT_APP_MAPBOX_API_KEY;
 
 const useWeather = (defaultQuery) => {
   const [weather, setWeather] = useState([]);
-
   const forecastURL = 'https://api.openweathermap.org/data/2.5/onecall?';
 
   useEffect(() => {
@@ -15,7 +14,7 @@ const useWeather = (defaultQuery) => {
 
   const search = async (query) => {
     try { // try1
-      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?&`, {
+      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?`, {
         params: {
           access_token: MB_API_KEY,
           types: "postcode,place",
@@ -23,7 +22,6 @@ const useWeather = (defaultQuery) => {
           autocomplete: "false"
         }
       });
-      console.log(response);
 
       try { // try2
         const forecastWeatherGet = await axios.get(forecastURL, {
