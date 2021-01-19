@@ -6,7 +6,6 @@ const MB_API_KEY = 'pk.eyJ1Ijoib2pkZXZlbG9wZXIiLCJhIjoiY2trM3NhM2dnMWUwczJ2cDVje
 
 const useWeather = (defaultQuery) => {
   const [weather, setWeather] = useState([]);
-  const forecastURL = 'https://api.openweathermap.org/data/2.5/onecall?';
 
   useEffect(() => {
     search(defaultQuery);
@@ -23,12 +22,11 @@ const useWeather = (defaultQuery) => {
       });
 
       try { // try2
-        const forecastWeatherGet = await axios.get(forecastURL, {
+        const forecastWeatherGet = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?&appid=${OW_API_KEY}`, {
           params: {
             lat: response.data.features[0].center[1],
             lon: response.data.features[0].center[0],
             exclude: "minutely,hourly",
-            APPID: OW_API_KEY,
             units: 'imperial'
           }
         });
