@@ -20,7 +20,6 @@ const useWeather = (defaultQuery) => {
           limit: 1
         }
       });
-      console.log(geocodeResponse);
 
       try { // try2
         const forecastWeatherGet = await axios.get('https://api.openweathermap.org/data/2.5/onecall?', {
