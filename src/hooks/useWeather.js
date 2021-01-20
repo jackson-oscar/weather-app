@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OW_API_KEY = '3730a1d53cd51070d7ccbfebda82c7ba';
-const MB_API_KEY = 'pk.eyJ1Ijoib2pkZXZlbG9wZXIiLCJhIjoiY2trM3NhM2dnMWUwczJ2cDVjeDhmbHFreSJ9.Wl7xYBoighmtAkoC_IOYyg';
+const OW_API_KEY = '7b52e4c07ecc10fddb3cc3bb6995b63b';
+const GC_API_KEY = process.env.REACT_APP_GEOCODIO_API_KEY;
 
 const useWeather = (defaultQuery) => {
   const [weather, setWeather] = useState([]);
@@ -13,19 +13,21 @@ const useWeather = (defaultQuery) => {
 
   const search = async (query) => {
     try { // try1
-      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${MB_API_KEY}`, {
+      const geocodeResponse = await axios.get('https://api.geocod.io/v1.6/geocode?', {
         params: {
-          types: "postcode,place",
-          worldview: "us",
-          autocomplete: "false"
+          api_key: GC_API_KEY,
+          q: query,
+          limit: 1
         }
       });
+      console.log(geocodeResponse);
 
       try { // try2
-        const forecastWeatherGet = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?&appid=${OW_API_KEY}`, {
+        const forecastWeatherGet = await axios.get('https://api.openweathermap.org/data/2.5/onecall?', {
           params: {
-            lat: response.data.features[0].center[1],
-            lon: response.data.features[0].center[0],
+            appid: OW_API_KEY,
+            lat: geocodeResponse.data.results[0].location.lat,
+            lon: geocodeResponse.data.results[0].location.lng,
             exclude: "minutely,hourly",
             units: 'imperial'
           }
@@ -36,7 +38,7 @@ const useWeather = (defaultQuery) => {
 
         setWeather([
           {
-            city: getCityName(response.data.features[0].place_name),
+            city: `${geocodeResponse.data.results[0].address_components.city}, ${geocodeResponse.data.results[0].address_components.state}`,
             temp: Math.round(currentWeather.temp),
             high: Math.round(forecastWeather[0].temp.max),
             low: Math.round(forecastWeather[0].temp.min),
@@ -91,13 +93,6 @@ const getWeekDay = (date) => {
   const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   let dayNum = new Date(date * 1000).getDay();
   return weekDays[dayNum];
-};
-
-/**
- * Returns only city name from string given from mapbox
- */
-const getCityName = (str) => {
-  return str.substr(0, str.indexOf(','));
 };
 
 export default useWeather;
