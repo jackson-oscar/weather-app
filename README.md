@@ -24,8 +24,8 @@ The weather app returns current weather and a five day forecast for the location
   - useState
   - useEffect
   - Custom hook (/src/hooks/useWeather.js)
-* Geocoio API
-* OpenWeather API
+* [Geocodio](https://www.geocod.io/) API
+* [OpenWeather](https://openweathermap.org/) API
 * [Semantic-ui](https://semantic-ui.com/) for styling
 * [Netlify](https://www.netlify.com/) for deployment
 * Visual Studio Code
