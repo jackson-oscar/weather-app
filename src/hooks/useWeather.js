@@ -49,12 +49,12 @@ const useWeather = (defaultQuery) => {
         ]);
       } catch (err) { // catch for try2
         console.log(err);
-        alert("Oops! Looks like the ZIP Code entered was not found!");
+        alert("Oops! Looks like the location entered was not found!");
       }
 
     } catch (err) { // catch for try1
       console.log(err);
-      alert("Oops! Looks like the ZIP Code entered was not found!");
+      alert("Oops! Looks like the location entered was not found!");
     };
   };
 

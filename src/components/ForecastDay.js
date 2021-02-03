@@ -6,13 +6,17 @@ const ForecastDay = ({ data }) => {
       <div className="content">
         <div className="center aligned header">
           <p>{data.weekDay}</p>
-          <img className="ui tiny image" src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`} />
+          <img 
+            className="ui tiny image"
+            alt="Weather Icon"
+            src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`}
+          />
         </div>
       </div>
       <div className="extra content">
         <div className="center aligned description">
-          <p>H:{data.high} L:{data.low}</p>
-          <p>{data.description}</p>
+          <p><b>H:</b>{data.high} <b>L:</b>{data.low}</p>
+          <p style={{textTransform: "capitalize"}}>{data.description}</p>
         </div>
       </div>
     </div>

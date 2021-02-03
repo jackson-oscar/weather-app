@@ -10,10 +10,11 @@ const CurrentDay = ({ data, units }) => {
         <br />
         <img
           className="ui massive image"
+          alt="Weather Icon"
           src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`}
         />
         <div className="sub header">
-          {data.description}
+          <span style={{textTransform: "capitalize"}}>{data.description}</span>
           <br />
           <b>H:</b>{data.high} <b>L:</b>{data.low}
         </div>
